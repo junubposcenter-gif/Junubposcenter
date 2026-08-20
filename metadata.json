@@ -1,5 +1,5 @@
 {
-  "name": "Junub POS Centre",
+  "name": "Junubpos Center",
   "description": "A comprehensive marketplace and management platform for browsing, subscribing to, and controlling software products. Includes a client portal, license key engine, dynamic provisioning simulator, and super admin analytics center.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
