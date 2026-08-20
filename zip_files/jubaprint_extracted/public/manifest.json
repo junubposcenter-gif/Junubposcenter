@@ -1,0 +1,25 @@
+{
+  "short_name": "ARK ERP",
+  "name": "ARK Printers Management System",
+  "description": "ARK Printers ERP and Management System with real-time operations.",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#0f172a",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait",
+  "categories": ["business", "productivity"]
+}

@@ -1,0 +1,296 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "System users and staff members",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string" },
+        "password": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "receptionist", "operator", "designer", "supervisor"] },
+        "full_name": { "type": "string" },
+        "staff_id": { "type": "string" },
+        "email": { "type": "string" },
+        "position": { "type": "string" },
+        "commission_balance": { "type": "number" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["username", "role", "full_name"]
+    },
+    "Customer": {
+      "title": "Customer",
+      "description": "Customers of the print shop",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Services offered by the shop with stock management",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "price": { "type": "number" },
+        "unit_cost": { "type": "number" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "stock": { "type": "number" },
+        "minimum_stock": { "type": "number" },
+        "unit": { "type": "string" },
+        "last_restock": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "price", "stock"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Customer service order",
+      "type": "object",
+      "properties": {
+        "customer_id": { "type": "string" },
+        "customer_name": { "type": "string" },
+        "total_amount": { "type": "number" },
+        "status": { "type": "string" },
+        "payment_status": { "type": "string", "enum": ["unpaid", "partially_paid", "paid"] },
+        "paid_amount": { "type": "number" },
+        "payment_method": { "type": "string" },
+        "description": { "type": "string" },
+        "staff_id": { "type": "string" },
+        "staff_name": { "type": "string" },
+        "assigned_staff_id": { "type": "string" },
+        "assigned_staff_name": { "type": "string" },
+        "designer_id": { "type": "string" },
+        "designer_name": { "type": "string" },
+        "operator_id": { "type": "string" },
+        "operator_name": { "type": "string" },
+        "referrer_id": { "type": "string" },
+        "commission_amount": { "type": "number" },
+        "discount": { "type": "number" },
+        "discount_request": {
+          "type": "object",
+          "properties": {
+            "amount": { "type": "number" },
+            "reason": { "type": "string" },
+            "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+            "requested_by_id": { "type": "string" },
+            "requested_by_name": { "type": "string" },
+            "requested_at": { "type": "string", "format": "date-time" },
+            "approved_by_id": { "type": "string" },
+            "approved_by_name": { "type": "string" },
+            "approved_at": { "type": "string", "format": "date-time" }
+          }
+        },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "stage_history": { "type": "object" },
+        "approval": {
+          "type": "object",
+          "properties": {
+            "approved_by_id": { "type": "string" },
+            "approved_by_name": { "type": "string" },
+            "approved_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      },
+      "required": ["customer_id", "total_amount"]
+    },
+    "OrderItem": {
+      "title": "Order Item",
+      "description": "Individual items within an order",
+      "type": "object",
+      "properties": {
+        "order_id": { "type": "string" },
+        "service_id": { "type": "string" },
+        "service_name": { "type": "string" },
+        "quantity": { "type": "number" },
+        "price_at_time": { "type": "number" }
+      },
+      "required": ["order_id", "service_id", "quantity", "price_at_time"]
+    },
+    "Expense": {
+      "title": "Expense",
+      "description": "Business expenses",
+      "type": "object",
+      "properties": {
+        "item": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "recorded_by": { "type": "string" },
+        "recorder_name": { "type": "string" },
+        "approver_id": { "type": "string" },
+        "approver_name": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "approved_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["item", "amount", "recorded_by", "status"]
+    },
+    "Funding": {
+      "title": "Funding",
+      "description": "Business funding sources",
+      "type": "object",
+      "properties": {
+        "source": { "type": "string" },
+        "amount": { "type": "number" },
+        "recorded_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["source", "amount", "recorded_by"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "App notifications",
+      "type": "object",
+      "properties": {
+        "user_id": { "type": "string" },
+        "role": { "type": "string" },
+        "message": { "type": "string" },
+        "is_read": { "type": "boolean" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["message", "created_at"]
+    },
+    "Message": {
+      "title": "Message",
+      "description": "Chat messages between staff",
+      "type": "object",
+      "properties": {
+        "sender_id": { "type": "string" },
+        "sender_email": { "type": "string" },
+        "receiver_id": { "type": "string" },
+        "chat_id": { "type": "string" },
+        "message": { "type": "string" },
+        "participants": { "type": "array" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["sender_id", "message", "chat_id", "participants", "created_at"]
+    },
+    "Setting": {
+      "title": "Setting",
+      "description": "App settings",
+      "type": "object",
+      "properties": {
+        "key": { "type": "string" },
+        "value": { "type": "string" }
+      },
+      "required": ["key", "value"]
+    },
+    "Payment": {
+      "title": "Payment",
+      "description": "Record of customer payment",
+      "type": "object",
+      "properties": {
+        "order_id": { "type": "string" },
+        "amount": { "type": "number" },
+        "method": { "type": "string" },
+        "recorded_by": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["order_id", "amount", "method"]
+    },
+    "InventoryLog": {
+      "title": "Inventory Log",
+      "description": "Logs of stock changes",
+      "type": "object",
+      "properties": {
+        "service_id": { "type": "string" },
+        "service_name": { "type": "string" },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["restock", "deduction"] },
+        "staff_id": { "type": "string" },
+        "staff_name": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["service_id", "amount", "type"]
+    },
+    "Quotation": {
+      "title": "Quotation",
+      "description": "Customer quotation estimate with list of services",
+      "type": "object",
+      "properties": {
+        "quotNo": { "type": "string" },
+        "name": { "type": "string" },
+        "address": { "type": "string" },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "attn": { "type": "string" },
+        "date": { "type": "string" },
+        "validityDays": { "type": "number" },
+        "paymentTerms": { "type": "string" },
+        "discountVal": { "type": "number" },
+        "discountType": { "type": "string", "enum": ["flat", "percent"] },
+        "taxRate": { "type": "number" },
+        "notes": { "type": "string" },
+        "items": { "type": "array" },
+        "status": { "type": "string", "enum": ["draft", "sent", "accepted", "declined", "converted"] },
+        "created_by": { "type": "string" },
+        "created_by_name": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["quotNo", "name", "items", "date"]
+    },
+    "CommissionRequest": {
+      "title": "Commission Request",
+      "description": "Requests made by marketers to cash out their earned commission balance",
+      "type": "object",
+      "properties": {
+        "referrer_id": { "type": "string" },
+        "referrer_name": { "type": "string" },
+        "referrer_email": { "type": "string" },
+        "amount": { "type": "number" },
+        "notes": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" },
+        "approved_by_id": { "type": "string" },
+        "approved_by_name": { "type": "string" },
+        "approved_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["referrer_id", "referrer_name", "amount", "status"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "Production tasks for managing job card execution",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "order_id": { "type": "string" },
+        "order_number": { "type": "string" },
+        "assigned_to": { "type": "string" },
+        "assigned_name": { "type": "string" },
+        "due_date": { "type": "string" },
+        "priority": { "type": "string", "enum": ["low", "medium", "high"] },
+        "status": { "type": "string", "enum": ["pending", "in_progress", "completed", "cancelled"] },
+        "created_by": { "type": "string" },
+        "created_by_name": { "type": "string" },
+        "tenant_id": { "type": "string" },
+        "created_at": { "type": "string", "format": "date-time" },
+        "updated_at": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "priority", "status", "created_by"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": { "schema": "User", "description": "Users collection" },
+    "/customers/{customerId}": { "schema": "Customer", "description": "Customers collection" },
+    "/services/{serviceId}": { "schema": "Service", "description": "Services collection" },
+    "/settings/{settingId}": { "schema": "Setting", "description": "Settings collection" },
+    "/orders/{orderId}": { "schema": "Order", "description": "Orders collection" },
+    "/orders/{orderId}/items/{itemId}": { "schema": "OrderItem", "description": "Order items subcollection" },
+    "/expenses/{expenseId}": { "schema": "Expense", "description": "Expenses collection" },
+    "/funding/{fundingId}": { "schema": "Funding", "description": "Funding collection" },
+    "/notifications/{notificationId}": { "schema": "Notification", "description": "Notifications collection" },
+    "/messages/{messageId}": { "schema": "Message", "description": "Messages collection" },
+    "/payments/{paymentId}": { "schema": "Payment", "description": "Payments collection" },
+    "/inventory_logs/{logId}": { "schema": "InventoryLog", "description": "Inventory logs collection" },
+    "/quotations/{quotationId}": { "schema": "Quotation", "description": "Quotations collection" },
+    "/commission_requests/{requestId}": { "schema": "CommissionRequest", "description": "Commission requests collection" },
+    "/tasks/{taskId}": { "schema": "Task", "description": "Tasks collection" }
+  }
+}

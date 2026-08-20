@@ -1,0 +1,298 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+    
+    // --- 1. Primitive Helpers ---
+    function isSignedIn() { return request.auth != null; }
+    function isEmailVerified() { return isSignedIn() && request.auth.token.email_verified == true; }
+    // Note: We bypass email_verified for the ARK system as it uses custom domain emails that might not be verified yet
+    function isAuth() { return isSignedIn(); } 
+    
+    function incoming() { return request.resource.data; }
+    function existing() { return resource.data; }
+    
+    function isValidId(id) { 
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$'); 
+    }
+
+    function hasUserDoc() {
+      return isAuth() && (
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) ||
+        (request.auth.token != null && 'email' in request.auth.token && exists(/databases/$(database)/documents/users/$(request.auth.token.email.lower()))) ||
+        (request.auth.token != null && 'email' in request.auth.token && exists(/databases/$(database)/documents/users/$(request.auth.token.email)))
+      );
+    }
+
+    function getUserData() {
+      return exists(/databases/$(database)/documents/users/$(request.auth.uid)) ?
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data :
+        (request.auth.token != null && 'email' in request.auth.token && exists(/databases/$(database)/documents/users/$(request.auth.token.email.lower())) ?
+          get(/databases/$(database)/documents/users/$(request.auth.token.email.lower())).data :
+          (request.auth.token != null && 'email' in request.auth.token && exists(/databases/$(database)/documents/users/$(request.auth.token.email)) ?
+            get(/databases/$(database)/documents/users/$(request.auth.token.email)).data :
+            {role: 'guest'}));
+    }
+
+    function isMaster() {
+      return isAuth() && (
+        request.auth.uid == 'MykfMetIVJPXjh12FyldgPK8hZg2' || 
+        (request.auth.token != null && 'email' in request.auth.token && request.auth.token.email.lower() == 'tekkisandereagan@gmail.com') ||
+        (request.auth.token != null && 'email' in request.auth.token && request.auth.token.email.lower() == 'kulyakosukusandereagan@gmail.com') ||
+        (request.auth.token != null && 'email' in request.auth.token && request.auth.token.email.lower() == 'junubposcenter@gmail.com')
+      );
+    }
+
+    function isAppLocked() {
+      return exists(/databases/$(database)/documents/settings/app_lock) && 
+             get(/databases/$(database)/documents/settings/app_lock).data.get('locked', false) == true;
+    }
+
+    function isWriteAllowed() {
+      return isAdmin() || !isAppLocked();
+    }
+
+    function isAdmin() {
+      return isMaster() || (isAuth() && hasUserDoc() && 
+        getUserData().get('role', 'guest').lower() == 'admin');
+    }
+
+    function isSupervisor() {
+      return isAdmin() || (isAuth() && hasUserDoc() && 
+        getUserData().get('role', 'guest').lower() == 'supervisor');
+    }
+
+    function isReceptionist() {
+      return isSupervisor() || (isAuth() && hasUserDoc() && 
+        getUserData().get('role', 'guest').lower() == 'receptionist');
+    }
+
+    function isSalesMarketing() {
+      return isAuth() && hasUserDoc() && 
+        getUserData().get('role', 'guest').lower() == 'sales_marketing';
+    }
+
+    function isStaff() {
+      return isAuth() && (isMaster() || hasUserDoc());
+    }
+
+    function isUserSelf(userId) {
+      return isAuth() && (
+        request.auth.uid == userId || 
+        (request.auth.token != null && 'email' in request.auth.token && request.auth.token.email.lower() == userId.lower())
+      );
+    }
+
+    // --- 2. Validation Blueprints ---
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['username', 'role']) &&
+             data.username is string &&
+             data.role is string &&
+             data.role.lower() in ['admin', 'receptionist', 'operator', 'designer', 'supervisor', 'sales_marketing', 'system'];
+    }
+
+    function isValidCustomer(data) {
+      return data.keys().hasAll(['name']) &&
+             data.name is string && data.name.size() <= 200;
+    }
+
+    function isValidService(data) {
+      return data.keys().hasAll(['name', 'price', 'stock']) &&
+             data.name is string && data.name.size() <= 200 &&
+             data.price is number && data.price >= 0 &&
+             data.stock is number;
+    }
+
+    function isValidOrder(data) {
+      return data.keys().hasAll(['customer_id', 'total_amount', 'status']) &&
+             isValidId(data.customer_id) &&
+             data.total_amount is number && data.total_amount >= 0 &&
+             data.status is string;
+    }
+
+    function isValidOrderItem(data) {
+      return data.keys().hasAll(['service_id', 'quantity', 'price_at_time']) &&
+             data.service_id is string &&
+             data.quantity is number && data.quantity > 0 &&
+             data.price_at_time is number;
+    }
+
+    function isValidExpense(data) {
+      return data.keys().hasAll(['item', 'amount', 'recorded_by', 'status']) &&
+             data.item is string && data.item.size() <= 500 &&
+             data.amount is number && data.amount > 0 &&
+             data.status in ['pending', 'approved', 'rejected'];
+    }
+
+    function isValidFunding(data) {
+      return data.keys().hasAll(['source', 'amount', 'recorded_by']) &&
+             data.source is string && data.source.size() <= 500 &&
+             data.amount is number && data.amount > 0;
+    }
+
+    function isValidPayment(data) {
+      return data.keys().hasAll(['order_id', 'amount', 'method']) &&
+             isValidId(data.order_id) &&
+             data.amount is number && data.amount > 0 &&
+             data.method is string;
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['title', 'priority', 'status', 'created_by']) &&
+             data.title is string && data.title.size() <= 200 &&
+             data.priority in ['low', 'medium', 'high'] &&
+             data.status in ['pending', 'in_progress', 'completed', 'cancelled'] &&
+             data.created_by is string;
+    }
+
+    // --- 3. Collection Rules ---
+
+    match /users/{userId} {
+      allow get: if isAuth() && (isUserSelf(userId) || isStaff());
+      allow list: if isStaff() || (isAuth() && request.auth.token != null && 'email' in request.auth.token && resource.data.get('email', '').lower() == request.auth.token.email.lower());
+      
+      allow create: if (isSupervisor() || isUserSelf(userId)) && isValidUser(incoming());
+      allow update: if (isSupervisor() || isUserSelf(userId)) && 
+                      (isSupervisor() || !incoming().diff(existing()).affectedKeys().hasAny(['role', 'commission_balance']));
+      allow delete: if isAdmin() || isUserSelf(userId);
+    }
+
+    match /username_map/{username} {
+      allow get: if true;
+      allow list: if isStaff();
+      allow create, update: if isAuth();
+      allow delete: if isAdmin();
+    }
+
+    match /customers/{customerId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && (isReceptionist() || isSalesMarketing()) && isValidCustomer(incoming());
+      allow update: if isWriteAllowed() && (isReceptionist() || isSalesMarketing()) && isValidCustomer(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /services/{serviceId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && isAdmin() && isValidService(incoming());
+      allow update: if isWriteAllowed() && isReceptionist() && (
+        // Restock action
+        incoming().diff(existing()).affectedKeys().hasOnly(['stock', 'last_restock']) ||
+        // Full update by admin
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    match /settings/{settingId} {
+      allow read: if isAuth();
+      allow write: if isAdmin() || (settingId == 'order_sequence' && isReceptionist());
+    }
+
+    match /orders/{orderId} {
+      allow read: if isStaff() && (
+        getUserData().get('role', 'none').lower() != 'sales_marketing' || 
+        resource.data.get('referrer_id', '') == request.auth.uid ||
+        ('email' in request.auth.token && resource.data.get('referrer_id', '') == request.auth.token.email)
+      );
+      allow create: if isWriteAllowed() && isReceptionist() && isValidOrder(incoming());
+      allow update: if isWriteAllowed() && isStaff() && (
+        isAdmin() ||
+        (isReceptionist() && !existing().status in ['completed', 'paid']) ||
+        // Workflow updates (status changes)
+        incoming().diff(existing()).affectedKeys().hasAny(['status', 'updated_at'])
+      );
+      allow delete: if isAdmin();
+
+      match /items/{itemId} {
+        allow read: if isStaff();
+        allow write: if isWriteAllowed() && (isReceptionist() || isAdmin());
+      }
+    }
+
+    match /{path=**}/items/{itemId} {
+      allow read: if isStaff();
+    }
+
+    match /payments/{paymentId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && isReceptionist() && isValidPayment(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && isStaff() && isValidExpense(incoming());
+      allow update: if isWriteAllowed() && (isAdmin() || (isSupervisor() && 
+        incoming().diff(existing()).affectedKeys().hasAny(['status', 'approver_id', 'approver_name', 'approved_at', 'updated_at'])
+      ));
+      allow delete: if isAdmin();
+    }
+
+    match /funding/{fundingId} {
+      allow read: if isReceptionist();
+      allow create: if isWriteAllowed() && isReceptionist() && isValidFunding(incoming());
+      allow delete: if isAdmin();
+    }
+
+    match /notifications/{notificationId} {
+      allow read: if isAuth() && (resource.data.user_id == request.auth.uid || resource.data.role == getUserData().get('role', 'none') || resource.data.user_id == 'all');
+      allow create: if isStaff();
+      allow update: if isAuth() && (resource.data.user_id == request.auth.uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+
+    match /messages/{messageId} {
+      allow create: if isStaff();
+      allow read: if isStaff() && (request.auth.uid in resource.data.participants || ('email' in request.auth.token && request.auth.token.email in resource.data.participants));
+      allow delete: if isAdmin();
+    }
+
+    match /inventory_logs/{logId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && isStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /assets/{assetId} {
+      allow read: if isStaff();
+      allow create, update: if isAdmin() && isWriteAllowed();
+      allow delete: if isAdmin();
+    }
+
+    match /quotations/{quotationId} {
+      allow read: if isStaff();
+      allow create, update: if isWriteAllowed() && isStaff();
+      allow delete: if isAdmin();
+    }
+
+    match /commission_requests/{requestId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && isSalesMarketing() && 
+                      (incoming().referrer_id == request.auth.uid || ('email' in request.auth.token && incoming().referrer_id == request.auth.token.email)) &&
+                      incoming().status == 'pending';
+      allow update: if isWriteAllowed() && isAdmin() && 
+                      (existing().status == 'pending' && 
+                       incoming().status in ['approved', 'rejected']);
+      allow delete: if isAdmin();
+    }
+
+    match /tasks/{taskId} {
+      allow read: if isStaff();
+      allow create: if isWriteAllowed() && isStaff() && isValidTask(incoming());
+      allow update: if isWriteAllowed() && isStaff() && isValidTask(incoming());
+      allow delete: if isWriteAllowed() && (isAdmin() || isSupervisor() || (isStaff() && existing().created_by == request.auth.uid));
+    }
+
+    match /tenants/{tenantId} {
+      allow read: if true;
+      allow create: if true;
+      allow update: if isAuth() && (isAdmin() || existing().created_by == request.auth.uid);
+      allow delete: if isAuth() && isAdmin();
+    }
+  }
+}

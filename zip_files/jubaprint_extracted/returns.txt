@@ -1,0 +1,61 @@
+142:    case 'pending': return 'Queueing';
+143:    case 'at_designer': return "At Designer's Table";
+144:    case 'production': return 'In Production';
+145:    case 'pending_client_approval': return 'Pending Client Approval';
+146:    case 'done_awaiting_invoice': return 'Ready for Invoice';
+147:    case 'ready_for_payment': return 'Ready for Payment';
+148:    case 'completed': return 'Taken/Finished';
+149:    case 'paid': return 'Paid';
+150:    default: return status || 'Unknown';
+181:    return (
+191:  return (
+303:    return () => unsubscribe();
+318:        return () => unsubscribe();
+323:    if (!chatInput.trim() || !user || !chatRecipient) return;
+354:        return;
+593:      return;
+597:      return;
+633:        return prev.map(item => item.serviceId === service.id ? { ...item, quantity: item.quantity + 1 } : item);
+635:      return [...prev, { serviceId: service.id, name: service.name, price: service.price, quantity: 1 }];
+641:      return false;
+661:    if (!user) return;
+672:          if (isMaster) return false;
+673:          return true;
+681:          if (!prev) return null;
+686:            return prev;
+688:          return { ...prev, ...updatedProfile };
+752:    return () => unsubscribers.forEach(unsub => unsub());
+757:    if (!user) return;
+780:        if (user?.staff_id === 'MASTER' || user?.role === 'admin') return true;
+785:        if (!canSeeHistory && isHistory) return false;
+789:           return order.assigned_staff_id === user.id;
+792:        return true;
+804:    return () => unsubscribe();
+809:    if (!orders || !users) return;
+823:      return d >= dates.start && d <= dates.end;
+844:      return {
+862:    return (
+874:      if (!user) return;
+916:    return (
+1000:      return `$ ${(amount / usdRate).toFixed(2)}`;
+1002:    return `${amount?.toLocaleString() || 0} SSP`;
+1006:    if (!date) return 'N/A';
+1008:    return d.toLocaleDateString();
+1017:      default: return;
+1030:  return (
+1470:                            return (
+2158:                              return (
+2182:                              return (
+2209:                              return sum + (salesCount * s.price);
+2211:                            return (
+2379:                                    return prev.map(item => item.serviceId === s.id ? { ...item, quantity: item.quantity + qty } : item);
+2381:                                  return [...prev, { serviceId: s.id, name: s.name, price: s.price || 0, quantity: qty }];
+2414:                                return;
+2500:                                return;
+2589:              if (restockAmount <= 0) return;
+2642:              if (!newCustomer.name || !newCustomer.phone) return;
+2722:              if (!quotationData.name || quotationData.items.length === 0) return;
+2792:                return;
+2840:              if (!newFunding.source || newFunding.amount <= 0) return;
+2922:              if (!newStaff.fullName || !newStaff.username) return;
+3104:                return;

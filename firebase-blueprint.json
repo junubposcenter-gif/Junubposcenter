@@ -1,0 +1,233 @@
+{
+  "entities": {
+    "product": {
+      "title": "Product",
+      "description": "A software product listed in the marketplace.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "tagline": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "pricing": { "type": "object" },
+        "screenshots": { "type": "array" },
+        "rating": { "type": "number" },
+        "reviewsCount": { "type": "number" },
+        "status": { "type": "string" }
+      },
+      "required": ["id", "name", "tagline", "description", "category", "pricing", "status"]
+    },
+    "subscription": {
+      "title": "Subscription",
+      "description": "A customer subscription to a software product.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "planType": { "type": "string" },
+        "price": { "type": "number" },
+        "status": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "licenseKey": { "type": "string" },
+        "deploymentType": { "type": "string" },
+        "domain": { "type": "string" }
+      },
+      "required": ["id", "customerId", "customerEmail", "productId", "productName", "planType", "price", "status", "startDate", "endDate", "licenseKey", "deploymentType", "domain"]
+    },
+    "license": {
+      "title": "License",
+      "description": "Software license details for activation and tracking.",
+      "type": "object",
+      "properties": {
+        "licenseKey": { "type": "string" },
+        "productId": { "type": "string" },
+        "productName": { "type": "string" },
+        "customerId": { "type": "string" },
+        "subscriptionId": { "type": "string" },
+        "status": { "type": "string" },
+        "deviceLimit": { "type": "number" },
+        "deviceCount": { "type": "number" },
+        "domainLimit": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["licenseKey", "productId", "productName", "customerId", "subscriptionId", "status", "deviceLimit", "createdAt"]
+    },
+    "ticket": {
+      "title": "Ticket",
+      "description": "A customer support ticket.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "customerName": { "type": "string" },
+        "subject": { "type": "string" },
+        "description": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string" },
+        "priority": { "type": "string" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "messages": { "type": "array" }
+      },
+      "required": ["id", "customerId", "customerEmail", "customerName", "subject", "description", "category", "status", "priority", "createdAt", "updatedAt"]
+    },
+    "invoice": {
+      "title": "Invoice",
+      "description": "Billing invoice for a customer purchase.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "customerId": { "type": "string" },
+        "customerEmail": { "type": "string" },
+        "subscriptionId": { "type": "string" },
+        "productName": { "type": "string" },
+        "planType": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "paymentMethod": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "customerId", "customerEmail", "subscriptionId", "productName", "planType", "amount", "currency", "paymentMethod", "status", "createdAt"]
+    },
+    "client": {
+      "title": "Client",
+      "description": "A client user profile in the SaaS system.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "name": { "type": "string" },
+        "company": { "type": "string" },
+        "phone": { "type": "string" },
+        "country": { "type": "string" },
+        "role": { "type": "string" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "email", "name", "role", "status", "createdAt"]
+    },
+    "provisioningLog": {
+      "title": "Provisioning Log",
+      "description": "Simulation log for automated SaaS deployments.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "subscriptionId": { "type": "string" },
+        "customerId": { "type": "string" },
+        "productName": { "type": "string" },
+        "domain": { "type": "string" },
+        "deploymentType": { "type": "string" },
+        "status": { "type": "string" },
+        "progress": { "type": "number" },
+        "logs": { "type": "array" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "subscriptionId", "customerId", "productName", "domain", "deploymentType", "status", "progress", "createdAt"]
+    },
+    "usernameMap": {
+      "title": "Username Map",
+      "description": "A mapping from a staff username to their details.",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string" },
+        "role": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "required": ["email", "role", "name"]
+    },
+    "quotation": {
+      "title": "Quotation",
+      "description": "Print shop design and job estimations.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "quotNo": { "type": "string" },
+        "name": { "type": "string" },
+        "phone": { "type": "string" },
+        "items": { "type": "array" },
+        "discountVal": { "type": "number" },
+        "discountType": { "type": "string" },
+        "deposit": { "type": "number" },
+        "usd_rate": { "type": "number" },
+        "status": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "quotNo", "name", "phone", "items", "discountVal", "discountType", "deposit", "usd_rate", "status", "createdAt"]
+    },
+    "order": {
+      "title": "Order",
+      "description": "An active job order with payment logs.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "job_order_id": { "type": "string" },
+        "customer_id": { "type": "string" },
+        "customer_name": { "type": "string" },
+        "phone": { "type": "string" },
+        "total_amount": { "type": "number" },
+        "paid_amount": { "type": "number" },
+        "payment_status": { "type": "string" },
+        "status": { "type": "string" },
+        "usd_rate": { "type": "number" },
+        "designer_assigned": { "type": "string" },
+        "designer_name": { "type": "string" },
+        "items": { "type": "array" },
+        "payments": { "type": "array" },
+        "design_asset_url": { "type": "string" },
+        "design_feedback": { "type": "string" },
+        "materials_logged": { "type": "array" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "job_order_id", "customer_id", "customer_name", "phone", "total_amount", "paid_amount", "payment_status", "status", "usd_rate", "designer_assigned", "designer_name", "items", "payments", "design_asset_url", "design_feedback", "materials_logged", "createdAt"]
+    }
+  },
+  "firestore": {
+    "products/{productId}": {
+      "schema": "product",
+      "description": "Products list in the public marketplace."
+    },
+    "subscriptions/{subscriptionId}": {
+      "schema": "subscription",
+      "description": "Customer subscriptions to SaaS apps."
+    },
+    "licenses/{licenseKey}": {
+      "schema": "license",
+      "description": "SaaS app license tracking."
+    },
+    "tickets/{ticketId}": {
+      "schema": "ticket",
+      "description": "Customer support tickets."
+    },
+    "invoices/{invoiceId}": {
+      "schema": "invoice",
+      "description": "Customer billing invoices."
+    },
+    "clients/{clientId}": {
+      "schema": "client",
+      "description": "User profiles and permissions."
+    },
+    "provisioningLogs/{logId}": {
+      "schema": "provisioningLog",
+      "description": "Simulated SaaS provisioning progress."
+    },
+    "username_map/{username}": {
+      "schema": "usernameMap",
+      "description": "Mapping from staff usernames to their registered email addresses and roles."
+    },
+    "quotations/{quotationId}": {
+      "schema": "quotation",
+      "description": "Customer print estimations and quotes."
+    },
+    "orders/{orderId}": {
+      "schema": "order",
+      "description": "Active print job orders and billing tracking."
+    }
+  }
+}
